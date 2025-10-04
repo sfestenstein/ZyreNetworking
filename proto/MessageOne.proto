@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message MessageOne
+{
+    string mcMessageString=1;
+    int64 mnTime=2;
+}
