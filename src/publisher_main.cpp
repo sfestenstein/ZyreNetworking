@@ -3,15 +3,20 @@
 #include <iostream>
 #include <thread>
 
+#include <czmq.h>
+
 #include <MessageOne.pb.h>
 #include <MessageTwo.pb.h>
 
-int main(int argc, char **argv) 
+int main() 
 {
+    // Disable CZMQ's signal handling so we can use our own
+    zsys_handler_set(NULL);
+
     ZyrePublisher pub("TestZyre");
     pub.start();
 
-    while (1)
+    while (true)
     {
         auto now = std::chrono::system_clock::now();
         auto epochSeconds = std::chrono::duration_cast<std::chrono::seconds>(
@@ -31,6 +36,8 @@ int main(int argc, char **argv)
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
+
+    std::cout << "Shutting down..." << std::endl;
     pub.stop();
     return 0;
 }

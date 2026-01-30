@@ -3,10 +3,9 @@
 #include <zyre.h>
 
 ZyreNode::ZyreNode(const std::string &name) : 
-    _nodeName(name),
-    _node(zyre_new(name.c_str()))
+    _node(zyre_new(nullptr)),  // Use random UUID for actual node name
+    _nodeName(name)
 {
-    
 }
 
 ZyreNode::~ZyreNode() 

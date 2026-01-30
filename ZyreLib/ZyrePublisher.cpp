@@ -12,6 +12,7 @@ ZyrePublisher::ZyrePublisher(const std::string &name) :
 
 ZyrePublisher::~ZyrePublisher()
 {
+    _isRunning.store(false);
     stop();
 }
 
@@ -31,11 +32,14 @@ bool ZyrePublisher::publish(const std::string &topic, const google::protobuf::Me
         return false;
     }
 
+    // Create namespaced group name
+    std::string namespacedTopic = _nodeName + "/" + topic;
+
     // Create zmsg and add the serialized data
     zmsg_t *zmsg = zmsg_new();
     zmsg_addmem(zmsg, serialized.data(), serialized.size());
 
-    if (zyre_shout(_node, topic.c_str(), &zmsg) != 0) 
+    if (zyre_shout(_node, namespacedTopic.c_str(), &zmsg) != 0) 
     {
         std::cerr << "Failed to shout on topic: " << topic << std::endl;
         if (zmsg) zmsg_destroy(&zmsg);

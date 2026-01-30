@@ -27,15 +27,18 @@ ZyreSubscriber::~ZyreSubscriber()
 
 void ZyreSubscriber::subscribe(const std::string &topic, MessageHandler handler)
 {
+    // Create namespaced group name
+    std::string namespacedTopic = _nodeName + "/" + topic;
+
     {
         std::lock_guard<std::mutex> lock(_handlersMutex);
-        _handlers[topic] = std::move(handler);
+        _handlers[namespacedTopic] = std::move(handler);
     }
 
     // Join the zyre group for this topic if node is running
     if (_node)
     {
-        zyre_join(_node, topic.c_str());
+        zyre_join(_node, namespacedTopic.c_str());
     }
 }
 
@@ -44,9 +47,15 @@ void ZyreSubscriber::receiveLoop()
     while (true) 
     {
         zyre_event_t *event = zyre_event_new(_node);
-        if (!event) break;  // zyre_stop() was called
-
+        std::cout << "Received Event" << std::endl;
         const char *type = zyre_event_type(event);
+
+        // Check for STOP event - indicates zyre_stop() was called
+        if (type && strcmp(type, "STOP") == 0)
+        {
+            zyre_event_destroy(&event);
+            break;
+        }
 
         if (type && strcmp(type, "SHOUT") == 0) 
         {

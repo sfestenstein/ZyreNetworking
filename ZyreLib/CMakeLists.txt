@@ -22,7 +22,7 @@ target_include_directories(ZyreLib PUBLIC
     ${ZMQ_INCLUDE_DIRS}
 )
 
-target_link_libraries(ZyreLib PRIVATE
+target_link_libraries(ZyreLib PUBLIC
     ${CZMQ_LIBRARIES}
     ${ZYRE_LIBRARIES}
     ${ZMQ_LIBRARIES}
@@ -31,11 +31,11 @@ target_link_libraries(ZyreLib PRIVATE
 # Also propagate link directories if pkg-config provided them (less ideal than
 # proper imported targets, but keeps behavior similar to previous global link dirs).
 if(CZMQ_LIBRARY_DIRS)
-    target_link_directories(ZyreLib PRIVATE ${CZMQ_LIBRARY_DIRS})
+    target_link_directories(ZyreLib PUBLIC ${CZMQ_LIBRARY_DIRS})
 endif()
 if(ZYRE_LIBRARY_DIRS)
-    target_link_directories(ZyreLib PRIVATE ${ZYRE_LIBRARY_DIRS})
+    target_link_directories(ZyreLib PUBLIC ${ZYRE_LIBRARY_DIRS})
 endif()
 if(ZMQ_LIBRARY_DIRS)
-    target_link_directories(ZyreLib PRIVATE ${ZMQ_LIBRARY_DIRS})
+    target_link_directories(ZyreLib PUBLIC ${ZMQ_LIBRARY_DIRS})
 endif()
