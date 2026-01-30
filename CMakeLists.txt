@@ -49,5 +49,5 @@ add_subdirectory(ZyreLib)
 add_executable(publisher src/publisher_main.cpp)
 add_executable(subscriber src/subscriber_main.cpp)
 
-target_link_libraries(publisher ZyreLib )
-target_link_libraries(subscriber ZyreLib )
+target_link_libraries(publisher ZyreLib protoMessages)
+target_link_libraries(subscriber ZyreLib protoMessages)

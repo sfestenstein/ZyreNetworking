@@ -1,17 +1,13 @@
 #include "ZyrePublisher.h"
 
 #include <iostream>
-#include <thread>
 
 #include <zyre.h>
 
 
-ZyrePublisher::ZyrePublisher(const std::string &name,
-                             const std::string &topic) :
-    ZyreNode(name), 
-    _topic(topic) 
+ZyrePublisher::ZyrePublisher(const std::string &name) :
+    ZyreNode(name)
 {
-
 }
 
 ZyrePublisher::~ZyrePublisher()
@@ -19,32 +15,32 @@ ZyrePublisher::~ZyrePublisher()
     stop();
 }
 
-void ZyrePublisher::run() 
+bool ZyrePublisher::publish(const std::string &topic, const google::protobuf::Message &message)
 {
-    if (!start()) 
+    if (!_node || !_isRunning.load()) 
     {
-        std::cerr<<"Failed to start publisher node"<<std::endl;
-        return;
+        std::cerr << "Publisher not running" << std::endl;
+        return false;
     }
 
-    // Announce presence to group (optional)
-    zyre_shouts(_node, _topic.c_str(), "%s", "publisher-online");
-
-    int count = 0;
-    while (_isRunning.load()) 
+    // Serialize the protobuf message
+    std::string serialized;
+    if (!message.SerializeToString(&serialized)) 
     {
-        char payload[256];
-        snprintf(payload, sizeof(payload), "[%s] message %d", _topic.c_str(), ++count);
-
-        zmsg_t *zmsg = zmsg_new();
-        zmsg_addstr(zmsg, payload);
-         std::cerr<<"shouting!"<<std::endl;
-        if (zyre_shout(_node, _topic.c_str(), &zmsg) != 0) 
-        {
-            std::cerr<<"Failed to shout"<<std::endl;
-            if (zmsg) zmsg_destroy(&zmsg);
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cerr << "Failed to serialize protobuf message" << std::endl;
+        return false;
     }
+
+    // Create zmsg and add the serialized data
+    zmsg_t *zmsg = zmsg_new();
+    zmsg_addmem(zmsg, serialized.data(), serialized.size());
+
+    if (zyre_shout(_node, topic.c_str(), &zmsg) != 0) 
+    {
+        std::cerr << "Failed to shout on topic: " << topic << std::endl;
+        if (zmsg) zmsg_destroy(&zmsg);
+        return false;
+    }
+
+    return true;
 }

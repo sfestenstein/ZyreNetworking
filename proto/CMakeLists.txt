@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(zyre_proto_messages LANGUAGES CXX)
+project(protoMessages LANGUAGES CXX)
 
 # Find Protobuf
 find_package(Protobuf REQUIRED)
@@ -18,16 +18,16 @@ endif()
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
 # Create a shared library from the generated sources
-add_library(zyre_proto SHARED ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_FILES})
-set_target_properties(zyre_proto PROPERTIES
+add_library(${PROJECT_NAME} SHARED ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_FILES})
+set_target_properties(${PROJECT_NAME} PROPERTIES
   POSITION_INDEPENDENT_CODE ON
   VERSION 1.0.0
   SOVERSION 1
 )
 
-target_include_directories(zyre_proto PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
     ${Protobuf_INCLUDE_DIRS}
 )
 
-target_link_libraries(zyre_proto  PUBLIC ${Protobuf_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}  PUBLIC ${Protobuf_LIBRARIES})
