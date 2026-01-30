@@ -48,6 +48,10 @@ add_subdirectory(ZyreLib)
 
 add_executable(publisher src/publisher_main.cpp)
 add_executable(subscriber src/subscriber_main.cpp)
+add_executable(unreliable_publisher src/unreliable_publish_tester.cpp)
+add_executable(unreliable_subscriber src/unreliable_subscriber_tester.cpp)
 
 target_link_libraries(publisher ZyreLib protoMessages)
 target_link_libraries(subscriber ZyreLib protoMessages)
+target_link_libraries(unreliable_publisher ZyreLib protoMessages)
+target_link_libraries(unreliable_subscriber ZyreLib protoMessages)
